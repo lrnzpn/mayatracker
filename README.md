@@ -20,5 +20,11 @@ npm run build
 npm run lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+# tracker API
+
+### Enter virtual environment and install dependencies
+```
+cd trackerapi 
+source env/bin/activate
+pip install -r requirements.txt
+```
