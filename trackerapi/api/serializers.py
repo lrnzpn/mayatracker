@@ -11,10 +11,19 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'description', 'amount', 'transaction_date', 'category', 'created_at', 'updated_at', 'user')
         read_only_fields = ['created_at', 'updated_at', 'user']
 
-# class UserSerializer(serializers.HyperlinkedModelSerializer):
-#     # add the transactions object as part of the user containing the primary keys of the transactions related to the user
-#     transactions = serializers.PrimaryKeyRelatedField(many=True, queryset=Transaction.objects.all())
-#
-#     class Meta:
-#         model = User
-#         fields = ['id', 'username', 'transactions']
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    # do not return the password field in the response
+    password = serializers.CharField(write_only=True)
+
+    # override the default create method
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            password=validated_data['password'],
+            email=validated_data['email']
+        )
+        return user
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'password', 'email']
