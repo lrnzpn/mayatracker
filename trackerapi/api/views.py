@@ -1,13 +1,13 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins, generics
 from django.contrib.auth.models import User
 
-from .serializers import TransactionSerializer, UserSerializer
+from .serializers import TransactionSerializer
 from .models import Transaction
 
 # Create your views here.
 class TransactionViewSet(viewsets.ModelViewSet):
-    # default queryset
+    # set default queryset
     queryset = Transaction.objects.all().order_by('id')
     serializer_class = TransactionSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -27,7 +27,11 @@ class TransactionViewSet(viewsets.ModelViewSet):
         user = self.request.user
         return Transaction.objects.filter(user=user).order_by('id')
 
-# IF users endpoint is needed, uncomment this code block
+# view for registering a new user
+#class UserView(generics.CreateAPIView):
+#    serializer_class = UserSerializer
+
+# IF we want to expose users (with all methods available), uncomment this code block
 # class UserViewSet(viewsets.ModelViewSet):
 #     queryset = User.objects.all().order_by('id')
 #     serializer_class = UserSerializer
