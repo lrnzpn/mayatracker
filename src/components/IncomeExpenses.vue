@@ -21,24 +21,30 @@ export default {
     },
     methods: {
         numberWithCommas(x) {
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            try {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            } catch {}
         }
     },
     computed: {
       transactions() {
-        return this.$store.getters.allTransactions
+        return this.$store.state.transactions
       }
     },
     mounted() {
-        const amounts = this.transactions.map(t => t.amount)
-        this.income = amounts
-                        .filter(item => item > 0)
-                        .reduce((acc, item) => (acc+=item), 0)
-                        .toFixed(2);
-        this.expense = (amounts
-                        .filter(item => item < 0)
-                        .reduce((acc, item) => (acc +=item), 0) * -1)
-                        .toFixed(2);
+        this.$store.dispatch('getTransactions');
+
+        setTimeout(() => {
+            const amounts = this.transactions.map(t => t.amount)
+            this.income = amounts
+                            .filter(item => item > 0)
+                            .reduce((acc, item) => (acc+=item), 0)
+                            .toFixed(2);
+            this.expense = (amounts
+                            .filter(item => item < 0)
+                            .reduce((acc, item) => (acc +=item), 0) * -1)
+                            .toFixed(2);
+        }, 100)
     }
 }
 </script>

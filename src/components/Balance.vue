@@ -15,18 +15,24 @@ export default {
     methods: {
         numberWithCommas(x) {
             // https://stackoverflow.com/a/2901298
-            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            try {
+                return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            } catch {}
         }
     },
     computed: {
       transactions() {
-        return this.$store.getters.allTransactions
+        return this.$store.state.transactions
       }
     },
     mounted() {
-        const amounts = this.transactions.map(t => t.amount)
-        this.total = amounts.reduce((acc, item) => (acc+=item), 0).toFixed(2)
-    }
+        this.$store.dispatch('getTransactions');
+
+        setTimeout(() => {
+            const amounts = this.transactions.map(t => t.amount)
+            this.total = amounts.reduce((acc, item) => (acc+=item), 0).toFixed(2)
+        }, 0)
+    },
 }
 </script>
 

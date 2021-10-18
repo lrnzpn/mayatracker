@@ -4,23 +4,40 @@
         <form @submit.prevent="onSubmit" ref="form">
             <div>
                 <label for="text">Text</label>
-                <input type="text" id="text" placeholder="Enter text..." />
+                <input type="text" v-model="text" name="text" placeholder="Enter text..." />
             </div>
             <div>
                 <label for="amount">
                     Amount <br />
                     (negative - expense, positive - income)
                 </label>
-                <input type="number" id="amount" placeholder="Enter amount..." />
+                <input type="number" v-model="amount" name="amount" placeholder="Enter amount..." />
             </div>
-            <button class="btn">Add transaction</button>
+            <button class="btn" type="submit">Add transaction</button>
         </form>
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      text: null,
+      amount: null
+    }
+  },
+  methods: {
+    onSubmit() {
+      const transaction = {
+        "text": this.text,
+        "amount": parseInt(this.amount)
+      }
 
+      this.$store.dispatch('addTransaction', transaction)
+
+      location.reload()
+    }
+  }
 }
 </script>
 

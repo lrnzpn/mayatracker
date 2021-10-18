@@ -19,6 +19,18 @@ const store = new Vuex.Store({
                 .then(res => {
                     commit('SET_TRANSACTIONS', res.data)
                 })
+        },
+        addTransaction({commit}, {text, amount}) {
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
+            axios.post(url, {text: text, amount: amount}, config)
+                .then(res => {
+                    console.log(res)
+                })
+                .catch(err => console.log(err))
         }
     },
     mutations: {
