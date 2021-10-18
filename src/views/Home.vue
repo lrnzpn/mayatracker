@@ -1,16 +1,38 @@
 <template>
-  <h1>hello world</h1>
+  <div>
+    <Balance />
+    <IncomeExpenses />
+    <TransactionList />
+    <AddTransaction />
+  </div>
 </template>
 
 <script>
-export default {
+import Balance from '../components/Balance.vue'
+import IncomeExpenses from '../components/IncomeExpenses.vue'
+import AddTransaction from '../components/AddTransaction.vue'
+import TransactionList from '../components/TransactionList.vue'
 
+export default {
+  data() {
+    return {
+      
+    }
+  },
+  components: {
+    Balance,
+    IncomeExpenses,
+    AddTransaction,
+    TransactionList
+  },
+  computed: {
+    testing() {
+      return this.$store.state.test
+    }
+  }
 }
 </script>
 
 <style lang="scss" scoped>
 
-h1 {
-    color: $blek;
-}
 </style>
