@@ -1,9 +1,21 @@
 <template>
   <div>
+    <b-modal 
+      id="modal-1" 
+      title="Add new transaction"
+      hide-footer
+      >
+      <AddTransaction />
+    </b-modal>
+
     <Balance />
     <IncomeExpenses />
+    <b-button 
+      v-b-modal.modal-1 
+      block 
+      class="btn-new">New Transaction</b-button>
     <TransactionList />
-    <AddTransaction />
+    
   </div>
 </template>
 
@@ -34,5 +46,13 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.btn-new {
+  width:100%;
+  background-color: $olive;
+  border: 0;
 
+  &:hover {
+    background-color: #7fb939;
+  }
+}
 </style>

@@ -28,7 +28,15 @@ const store = new Vuex.Store({
             }
             axios.post(url, {text: text, amount: amount}, config)
                 .then(res => {
-                    console.log(res)
+                    commit('ADD_TRANSACTION', res.data)
+                })
+                .catch(err => console.log(err))
+        },
+        deleteTransaction({commit}, {txnId}) {
+            axios.delete(url, {id: txnId})
+                .then(res => {
+                    console.log(txnId)
+                    commit('DELETE_TRANSACTION', txnId)
                 })
                 .catch(err => console.log(err))
         }
@@ -36,6 +44,16 @@ const store = new Vuex.Store({
     mutations: {
         SET_TRANSACTIONS(state, transactions) {
             state.transactions = transactions
+        },
+        ADD_TRANSACTION(state, transaction) {
+            state.transactions.push(transaction)
+        },
+        DELETE_TRANSACTION(state, txnId) {
+            let index = state.transactions.findIndex((i) => i.id === txnId)
+            if(index > -1) {
+                state.transactions.splice(index, 1)
+            }
+            
         }
     }
 })

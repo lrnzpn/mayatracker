@@ -1,6 +1,5 @@
 <template>
   <div>
-        <h3>Add new transaction</h3>
         <form @submit.prevent="onSubmit" ref="form">
             <div>
                 <label for="text">Text</label>
@@ -35,7 +34,7 @@ export default {
 
       this.$store.dispatch('addTransaction', transaction)
 
-      location.reload()
+      // location.reload()
     }
   }
 }
@@ -59,7 +58,7 @@ input[type='number'] {
 
 .btn {
   cursor: pointer;
-  background-color: #9c88ff;
+  background-color: $olive;
   box-shadow: $box-shadow;
   color: #fff;
   border: 0;
@@ -68,6 +67,10 @@ input[type='number'] {
   margin: 10px 0 30px;
   padding: 10px;
   width: 100%;
+  &:hover {
+    background-color: #7fb939;
+    color: $white;
+  }
 }
 
 .btn:focus,
