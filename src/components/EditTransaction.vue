@@ -1,26 +1,31 @@
 <template>
   <div>
-        <form @submit.prevent="onSubmit" ref="form">
+        <form @submit.prevent="onSubmit" ref="form" v-if="transaction">
             <div class="form-group">
                 <label for="description">Description</label>
-                <input class="form-control" type="description" v-model="description" name="text" placeholder="Enter text..." />
+                <input class="form-control" type="description" v-model="transaction.description" name="text" placeholder="Enter text..." />
             </div>
             <div class="form-group">
                 <label for="amount">
                     Amount <br />
                     (negative - expense, positive - income)
                 </label>
-                <input class="form-control" type="number" v-model="amount" name="amount" placeholder="Enter amount..." />
+                <input class="form-control" type="number" v-model="transaction.amount" name="amount" placeholder="Enter amount..." />
             </div>
             <div class="form-group">
                 <label for="date">Transaction Date</label>
-                <input class="form-control" type="date" v-model="date" name="date" :max="setMaxDate" />
+                <input 
+                    class="form-control" 
+                    type="date" 
+                    v-model="transaction.transaction_date"
+                    name="date" 
+                    :max="setMaxDate"/>
             </div>
             <div class="form-group">
                 <label for="category">
                     Category
                 </label>
-                <select v-model="category" class="form-control">
+                <select v-model="transaction.category" class="form-control">
                   <option disabled value="">Please select one</option>
                   <option>Allowance</option>
                   <option>Food</option>
@@ -30,35 +35,38 @@
                 </select>
             </div>
 
-            <button class="btn" type="submit">Add transaction</button>
+            <button class="btn" type="submit">Update transaction</button>
         </form>
+        <h3 v-else>
+            Loading...
+        </h3>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
-  data() {
-    return {
-      description: null,
-      amount: null,
-      date: null,
-      category: null
-    }
-  },
+    props: [
+        'txnId'
+    ],
   methods: {
     onSubmit() {
-      const transaction = {
-        "description": this.description,
-        "amount": parseFloat(this.amount),
-        "transaction_date": this.date,
-        "category": this.category
-      }
-
-      this.$store.dispatch('addTransaction', transaction).then(() => {
-          setTimeout(() => {
-            location.reload()
-          },500)})
-    },
+        const transaction = {
+            "id": this.txnId,
+            "description": this.transaction.description,
+            "amount": parseFloat(this.transaction.amount),
+            "transaction_date": this.transaction.transaction_date,
+            "category": this.transaction.category
+        }
+        this.$store.dispatch('editTransaction', transaction)
+            .then(() => {
+                setTimeout(() => {
+                    location.reload
+                },500)
+            })
+    }
+        
   },
   computed: {
     setMaxDate() {
@@ -66,8 +74,14 @@ export default {
       const date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
 
       return date
+    },
+    transaction() {
+        return this.$store.getters.getTransaction
     }
-  }
+  },
+  mounted() {
+      this.$store.dispatch('getTransaction', this.txnId);
+    }
 }
 </script>
 
@@ -76,16 +90,6 @@ label {
   display: inline-block;
   margin: 10px 0;
 }
-
-// input[type='text'],
-// input[type='number'] {
-//   border: 1px solid #dedede;
-//   border-radius: 2px;
-//   display: block;
-//   font-size: 16px;
-//   padding: 10px;
-//   width: 100%;
-// }
 
 .btn {
   cursor: pointer;

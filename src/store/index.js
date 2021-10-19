@@ -4,36 +4,107 @@ import axios from 'axios'
 
 Vue.use(Vuex)
 
-const url = 'http://localhost:8000/api/v1/transactions'
+const url = 'http://localhost:8000/api/v1/transactions/'
+
+// const username = 'admin'
+// const password = 'password'
 
 const store = new Vuex.Store({
     state: {
-        transactions: []
+        transactions: [],
+        transaction: "",
+        username: 'admin',
+        password: 'password'
     },
     getters: {
-        allTransactions: (state) => state.transactions
+        allTransactions: (state) => state.transactions,
+        getTransaction: (state) => state.transaction
     },
     actions: {
         getTransactions({commit}) {
-            axios.get(url)
+            const usernamePasswordBuffer = Buffer
+                                            .from(this.state.username
+                                                +':'+ this.state.password);
+            const base64data = usernamePasswordBuffer.toString('base64');
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${base64data}`,
+                }
+            }
+
+            return axios.get(url, config)
                 .then(res => {
                     commit('SET_TRANSACTIONS', res.data)
                 })
+                .catch(err => console.log(err))
         },
-        addTransaction({commit}, {text, amount}) {
+        getTransaction({commit}, txnId) {
+            const usernamePasswordBuffer = Buffer
+                                            .from(this.state.username
+                                                +':'+ this.state.password);
+            const base64data = usernamePasswordBuffer.toString('base64');
             const config = {
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${base64data}`,
                 }
             }
-            axios.post(url, {text: text, amount: amount}, config)
+            return axios.get(url+`${txnId}/`, config)
+                .then(res => {
+                    commit('SET_TRANSACTION', res.data)
+                })
+                .catch(err => console.log(err))
+
+        },
+        addTransaction({commit}, payload) {
+            const usernamePasswordBuffer = Buffer
+                                            .from(this.state.username
+                                                +':'+ this.state.password);
+            const base64data = usernamePasswordBuffer.toString('base64');
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${base64data}`,
+                }
+            }
+
+            return axios.post(url, payload, config)
                 .then(res => {
                     commit('ADD_TRANSACTION', res.data)
                 })
                 .catch(err => console.log(err))
         },
-        deleteTransaction({commit}, {txnId}) {
-            axios.delete(url, {id: txnId})
+        editTransaction({commit}, payload) {
+            const usernamePasswordBuffer = Buffer
+                                            .from(this.state.username
+                                                +':'+ this.state.password);
+            const base64data = usernamePasswordBuffer.toString('base64');
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Basic ${base64data}`,
+                }
+            }
+
+            return axios.put(url+`${payload.id}/`, payload, config)
+                .then(res => {
+                    commit('EDIT_TRANSACTION', res.data)
+                })
+                .catch(err => {
+                    console.log(err)
+                })
+        },
+        deleteTransaction({commit}, txnId) {
+            const usernamePasswordBuffer = Buffer
+                                            .from(this.state.username
+                                                +':'+ this.state.password);
+            const base64data = usernamePasswordBuffer.toString('base64');
+            return axios.delete(url + `${txnId}/`, {
+                headers: {
+                    'Authorization': `Basic ${base64data}`,
+                },
+            })
                 .then(res => {
                     console.log(txnId)
                     commit('DELETE_TRANSACTION', txnId)
@@ -45,6 +116,9 @@ const store = new Vuex.Store({
         SET_TRANSACTIONS(state, transactions) {
             state.transactions = transactions
         },
+        SET_TRANSACTION(state, transaction) {
+            state.transaction = transaction
+        },
         ADD_TRANSACTION(state, transaction) {
             state.transactions.push(transaction)
         },
@@ -52,8 +126,19 @@ const store = new Vuex.Store({
             let index = state.transactions.findIndex((i) => i.id === txnId)
             if(index > -1) {
                 state.transactions.splice(index, 1)
+            } 
+        },
+        EDIT_TRANSACTION(state, transaction) {
+            let index = state.transactions.findIndex((i) => i.id === transaction.id)
+            if(index > -1) {
+                state.transactions[index] = transaction
             }
-            
+        },
+        SET_USERNAME(state, username) {
+            state.username = username
+        },
+        SET_PASSWORD(state, password) {
+            state.password = password
         }
     }
 })
