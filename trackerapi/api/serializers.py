@@ -8,7 +8,7 @@ class TransactionSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ('url', 'description', 'amount', 'transaction_date', 'category', 'created_at', 'updated_at')
+        fields = ('id', 'url', 'description', 'amount', 'transaction_date', 'category', 'created_at', 'updated_at')
         read_only_fields = ['created_at', 'updated_at']
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
