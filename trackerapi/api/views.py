@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, mixins, generics
+from rest_framework import viewsets, permissions, generics
+from datetime import datetime
 #from django.contrib.auth.models import User
 
 from .serializers import TransactionSerializer, UserSerializer
@@ -25,7 +26,24 @@ class TransactionViewSet(viewsets.ModelViewSet):
         for the currently authenticated user.
         """
         user = self.request.user
-        return Transaction.objects.filter(user=user).order_by('id')
+        # filter transactions of the current user
+        # order by transaction_date, in descending order
+        queryset = Transaction.objects.filter(user=user).order_by('-transaction_date')
+
+        # filter by category and transaction date
+        category = self.request.query_params.get('category')
+        date_str = self.request.query_params.get('transaction_date')
+
+        if category is not None:
+            queryset = queryset.filter(category=category)
+
+        if date_str is not None:
+            # parse the string to a date object
+            trans_date = datetime.strptime(date_str, '%Y-%m-%d')
+            queryset = queryset.filter(transaction_date=trans_date)
+
+        return queryset
+
 
 # view for registering a new user
 class RegistrationView(generics.CreateAPIView):
