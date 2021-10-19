@@ -27,11 +27,11 @@ export default {
     },
     mounted() {
         this.$store.dispatch('getTransactions');
-
+        
         setTimeout(() => {
             const amounts = this.transactions.map(t => t.amount)
             this.total = amounts.reduce((acc, item) => (acc+=item), 0).toFixed(2)
-        }, 0)
+        }, 500)
     },
 }
 </script>

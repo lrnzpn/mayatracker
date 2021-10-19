@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, permissions, mixins, generics
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.response import Response
 #from django.contrib.auth.models import User
 
 from .serializers import TransactionSerializer, UserSerializer
@@ -10,6 +12,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     # set default queryset
     queryset = Transaction.objects.all().order_by('id')
     serializer_class = TransactionSerializer
+    authentication_classes = [BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -26,6 +29,14 @@ class TransactionViewSet(viewsets.ModelViewSet):
         """
         user = self.request.user
         return Transaction.objects.filter(user=user).order_by('id')
+
+    # For BasicAuthentication
+    def get(self, request, format=None):
+        content = {
+            'user': str(request.user),  # `django.contrib.auth.User` instance.
+            'auth': str(request.auth),  # None
+        }
+        return Response(content)
 
 # view for registering a new user
 class RegistrationView(generics.CreateAPIView):

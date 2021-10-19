@@ -44,7 +44,7 @@ export default {
                             .filter(item => item < 0)
                             .reduce((acc, item) => (acc +=item), 0) * -1)
                             .toFixed(2);
-        }, 100)
+        }, 500)
     }
 }
 </script>

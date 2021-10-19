@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-modal 
-      id="modal-1" 
+      id="modal-add" 
       title="Add new transaction"
       hide-footer
       >
@@ -11,7 +11,7 @@
     <Balance />
     <IncomeExpenses />
     <b-button 
-      v-b-modal.modal-1 
+      v-b-modal.modal-add 
       block 
       class="btn-new">New Transaction</b-button>
     <TransactionList />
