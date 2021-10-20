@@ -3,29 +3,35 @@ from rest_framework.test import APITestCase, APIClient
 from api.serializers import UserSerializer
 from django.contrib.auth.models import User
 from api.models import Transaction
-from faker import Faker
-from datetime import datetime
-import requests
 
 class TestTransactions(APITestCase):
 
     def setUp(self):
-        # Generate user data
-        self.fake = Faker()
+        # Test data
         self.user = {
-            'username': self.fake.email().split('@')[0],
-            'email': self.fake.email(),
-            'password': self.fake.email()
+            'username': 'sample',
+            'email': 'sample@example.com',
+            'password': 'password123'
         }
-        # Generate transaction data
         self.transaction = {
-            'description': 'food',
-            'category': 'food',
-            'amount': self.fake.pydecimal(left_digits=3, right_digits=2),
-            'transaction_date': datetime.today().strftime('%Y-%m-%d')
+            'description': 'GigaSurf',
+            'category': 'Load',
+            'amount': 99,
+            'transaction_date':'2020-10-20'
+        }
+        self.new_user = {
+            'username': 'sample2',
+            'email': 'sample2@example.com',
+            'password': 'password123'
+        }
+        self.new_transaction = {
+            'description': 'GigaVideo',
+            'category': 'Internet',
+            'amount': 399,
+            'transaction_date':'2020-10-21'            
         }
         # Create a user
-        User.objects.create_user(username=self.user['username'], password=self.user['password'])
+        User.objects.create_user(username=self.user['username'], email=self.user['email'], password=self.user['password'])
         # Login
         login_response = self.client.post('/api/v1/login/', {'username':self.user['username'], 'password':self.user['password']},format='json')
         # Get user access token
@@ -34,22 +40,103 @@ class TestTransactions(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='JWT ' + access_token)
         # Create a transaction
         self.transaction_response = self.client.post('/api/v1/transactions/', self.transaction, format='json')
+        
+         # Test data for 404 errors
+        self.new_url = self.transaction_response.data['url'][:-2]
+        self.new_url = self.new_url + '5/'
+        
+        User.objects.create_user(username=self.new_user['username'], email=self.new_user['email'], password=self.new_user['password'])
+        self.new_login_response = self.client.post('/api/v1/login/', {'username':self.new_user['username'], 'password':self.new_user['password']},format='json')
+        self.new_access_token = self.new_login_response.data['access']
 
-    def test_can_create_transaction(self):
+        self.invalid_access_token = '12345'
+
+    # CREATE TRANSACTION
+    def test_create_transaction_success(self):
         self.assertEqual(self.transaction_response.status_code, 201)
+        self.assertEqual(Transaction.objects.get().description, self.transaction['description'])
+        self.assertEqual(Transaction.objects.get().category, self.transaction['category'])
+        self.assertEqual(Transaction.objects.get().amount, self.transaction['amount'])
+        self.assertEqual(Transaction.objects.get().transaction_date.strftime('%Y-%m-%d'), self.transaction['transaction_date'])
 
-    def test_can_get_transaction(self):
+    def test_create_transaction_error_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
+        response = self.client.put('/api/v1/transactions/', self.transaction, format='json')
+        self.assertEqual(response.status_code, 401)
+
+    # READ TRANSACTION
+    def test_read_transaction_success(self):
+        response = self.client.get(self.transaction_response.data['url'])
+        self.assertIn('url', response.data)
+        self.assertIn('description', response.data)
+        self.assertIn('category', response.data)
+        self.assertIn('amount', response.data)
+        self.assertIn('transaction_date', response.data)
+        self.assertIn('created_at', response.data)
+        self.assertIn('updated_at', response.data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_read_transactions_list_success(self):
         response = self.client.get(self.transaction_response.data['url'])
         self.assertEqual(response.status_code, 200)
 
-    def test_can_update_transaction(self):
-        response = self.client.put(self.transaction_response.data['url'], self.transaction, format='json')
-        self.assertEqual(response.status_code, 200)
+    def test_read_transaction_error_data_not_found(self):
+        response = self.client.get(self.new_url)
+        self.assertEqual(response.status_code, 404)
 
-    def test_can_delete_transaction(self):
+    def test_read_transaction_error_user_not_owner(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        response = self.client.get(self.transaction_response.data['url'])
+        self.assertEqual(response.status_code, 404)
+
+    def test_read_transaction_error_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
+        response = self.client.get(self.transaction_response.data['url'])
+        self.assertEqual(response.status_code, 401)
+
+    def test_read_transactions_list_error_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
+        response = self.client.delete(self.transaction_response.data['url'])
+        self.assertEqual(response.status_code, 401)
+
+    # UPDATE TRANSACTION
+    def test_update_transaction_success(self):
+        response = self.client.put(self.transaction_response.data['url'], self.new_transaction, format='json')
+        self.assertEqual(Transaction.objects.get().description, self.new_transaction['description'])
+        self.assertEqual(Transaction.objects.get().category, self.new_transaction['category'])
+        self.assertEqual(Transaction.objects.get().amount, self.new_transaction['amount'])
+        self.assertEqual(Transaction.objects.get().transaction_date.strftime('%Y-%m-%d'), self.new_transaction['transaction_date'])
+        self.assertEqual(response.status_code, 200)
+    
+    def test_update_transaction_error_data_not_found(self):
+        response = self.client.put(self.new_url, self.new_transaction, format='json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_transaction_error_user_not_owner(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        response = self.client.put(self.transaction_response.data['url'], self.new_transaction, format='json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_update_transaction_error_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
+        response = self.client.put(self.transaction_response.data['url'], self.new_transaction, format='json')
+        self.assertEqual(response.status_code, 401)
+
+    # DELETE TRANSACTION
+    def test_delete_transaction_success(self):
         response = self.client.delete(self.transaction_response.data['url'])
         self.assertEqual(response.status_code, 204)
 
-    def test_can_list_transactions(self):
-        response = self.client.get(self.transaction_response.data['url'])
-        self.assertEqual(response.status_code, 200)
+    def test_delete_transaction_error_data_not_found(self):
+        response = self.client.delete(self.new_url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_transaction_error_user_not_owner(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        response = self.client.delete(self.transaction_response.data['url'])
+        self.assertEqual(response.status_code, 404)
+
+    def test_delete_transaction_error_invalid_token(self):
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
+        response = self.client.delete(self.transaction_response.data['url'])
+        self.assertEqual(response.status_code, 401)
