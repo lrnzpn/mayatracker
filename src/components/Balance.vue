@@ -26,7 +26,7 @@ export default {
       }
     },
     mounted() {
-        this.$store.dispatch('getTransactions');
+        this.$store.dispatch('filterGetTransactions');
         
         setTimeout(() => {
             const amounts = this.transactions.map(t => t.amount)

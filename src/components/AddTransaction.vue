@@ -3,31 +3,24 @@
         <form @submit.prevent="onSubmit" ref="form">
             <div class="form-group">
                 <label for="description">Description</label>
-                <input class="form-control" type="description" v-model="description" name="text" placeholder="Enter text..." />
+                <input class="form-control" type="description" v-model="description" name="text" placeholder="Enter text..." required />
             </div>
             <div class="form-group">
                 <label for="amount">
                     Amount <br />
                     (negative - expense, positive - income)
                 </label>
-                <input class="form-control" type="number" v-model="amount" name="amount" placeholder="Enter amount..." />
+                <input class="form-control" type="number" v-model="amount" name="amount" placeholder="Enter amount..." required />
             </div>
             <div class="form-group">
                 <label for="date">Transaction Date</label>
-                <input class="form-control" type="date" v-model="date" name="date" :max="setMaxDate" />
+                <input class="form-control" type="date" v-model="date" name="date" :max="setMaxDate" required />
             </div>
             <div class="form-group">
-                <label for="category">
-                    Category
-                </label>
-                <select v-model="category" class="form-control">
-                  <option disabled value="">Please select one</option>
-                  <option>Allowance</option>
-                  <option>Food</option>
-                  <option>Travel</option>
-                  <option>Bills</option>
-                  <option>Shopping</option>
-                </select>
+                <div class="form-group">
+                <label for="category">Category</label>
+                <input class="form-control" type="category" v-model="category" name="text" required />
+            </div>
             </div>
 
             <button class="btn" type="submit">Add transaction</button>
