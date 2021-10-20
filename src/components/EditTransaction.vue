@@ -62,7 +62,7 @@ export default {
         this.$store.dispatch('editTransaction', transaction)
             .then(() => {
                 setTimeout(() => {
-                    location.reload
+                    location.reload()
                 },500)
             })
     }

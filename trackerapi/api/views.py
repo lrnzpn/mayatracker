@@ -13,7 +13,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     # set default queryset
     queryset = Transaction.objects.all().order_by('id')
     serializer_class = TransactionSerializer
-    authentication_classes = [BasicAuthentication]
+    # authentication_classes = [BasicAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
@@ -49,12 +49,12 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
 
     # For BasicAuthentication
-    def get(self, request, format=None):
-        content = {
-            'user': str(request.user),  # `django.contrib.auth.User` instance.
-            'auth': str(request.auth),  # None
-        }
-        return Response(content)
+    # def get(self, request, format=None):
+    #     content = {
+    #         'user': str(request.user),  # `django.contrib.auth.User` instance.
+    #         'auth': str(request.auth),  # None
+    #     }
+    #     return Response(content)
 
 # view for registering a new user
 class RegistrationView(generics.CreateAPIView):

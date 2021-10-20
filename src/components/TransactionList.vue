@@ -27,7 +27,7 @@
                   class="me-2" 
                   variant="outline-success" 
                   size="sm"
-                  v-b-modal="'modal-'+idx"
+                  v-b-modal="'modal-'+t.id"
                   >Edit</b-button>
                 <b-button variant="danger" size="sm" @click="deleteTxn(t.id)">Delete</b-button>
               </b-card-body>
@@ -70,7 +70,7 @@ export default {
     },
     mounted() {
       this.$store.dispatch('getTransactions');
-      console.log(this.transactions)
+      // console.log(this.transactions)
     }
 }
 </script>
