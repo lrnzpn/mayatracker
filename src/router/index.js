@@ -23,6 +23,12 @@ const routes = [
       import("../views/Register.vue")
   },
   {
+    path: "/history",
+    name: "History",
+    component: () =>
+      import("../views/History.vue")
+  },
+  {
     path: "*",
     redirect: "/"
   }

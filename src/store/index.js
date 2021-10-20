@@ -19,22 +19,34 @@ const store = new Vuex.Store({
         getTransaction: (state) => state.transaction
     },
     actions: {
-        getTransactions({commit}) {
-            // const usernamePasswordBuffer = Buffer
-            //                                 .from(this.state.username
-            //                                     +':'+ this.state.password);
-            // const base64data = usernamePasswordBuffer.toString('base64');
+        getTransactions({commit}, query) {
             const token = localStorage.getItem('token')
             const config = {
                 headers: {
                     'Content-Type': 'application/json',
-                    // 'Authorization': `Basic ${base64data}`,
                     'Authorization' : `JWT ${token}`,
                 }
             }
-            // console.log(config)
+     
+            return axios.get(`${url}transactions/?${query}`, config)
+                .then(res => {
+                    commit('SET_TRANSACTIONS', res.data)
+                    // console.log(res.data)
+                })
+                .catch(err => console.log(err))
+        },
+        filterGetTransactions({commit}) {
+            const token = localStorage.getItem('token')
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization' : `JWT ${token}`,
+                }
+            }
+            const today = new Date();
+            const date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
 
-            return axios.get(`${url}transactions/`, config)
+            return axios.get(`${url}transactions/?transaction_date=${date}`, config)
                 .then(res => {
                     commit('SET_TRANSACTIONS', res.data)
                 })
@@ -53,7 +65,7 @@ const store = new Vuex.Store({
                     commit('SET_TRANSACTION', res.data)
                 })
                 .catch(err => console.log(err))
-
+                
         },
         addTransaction({commit}, payload) {
             const token = localStorage.getItem('token')

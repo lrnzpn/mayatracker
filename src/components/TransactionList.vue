@@ -1,6 +1,6 @@
 <template>
   <div class="mt-4">
-      <h3>History</h3>
+      <h3>Transactions Today</h3>
         <h2 v-if="transactions.length == 0">You have no transactions</h2>
         <div v-else class="accordion list" role="tablist">
           <b-card 
@@ -36,29 +36,40 @@
               <EditTransaction v-if="t.id" :txnId="t.id" />
             </b-modal>
           </b-card>
+
+          <router-link to="/history">View all Transactions</router-link>
         </div>
   </div>
 </template>
 
 <script>
-import moment from 'moment'
 import EditTransaction from './EditTransaction.vue'
 
 export default {
   components: {
     EditTransaction
   },
+  data() {
+    return {
+      queryDate: ''
+    }
+  },
     computed: {
       transactions() {
-        return this.$store.state.transactions
+        return this.$store.state.transactions.sort((a,b) => {
+          return new Date(b.created_at) - new Date(a.created_at)
+        })
+      },
+      setMaxDate() {
+        const today = new Date();
+        const date = today.getFullYear() + '-' + (today.getMonth()+1) + '-' + today.getDate();
+
+        return date
       }
     },
     methods: {
       numberWithCommas(x) {
           return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      },
-      parseDate(date) {
-        return moment(date).utc().format('MM/DD/YYYY')
       },
       deleteTxn(txnId) {
         this.$store.dispatch('deleteTransaction', txnId).then(() => {
@@ -69,8 +80,7 @@ export default {
       },
     },
     mounted() {
-      this.$store.dispatch('getTransactions');
-      // console.log(this.transactions)
+      this.$store.dispatch('filterGetTransactions');
     }
 }
 </script>
