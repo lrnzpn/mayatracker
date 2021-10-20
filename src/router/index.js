@@ -1,7 +1,6 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 import Home from "../views/Home.vue";
-import NotFound from "../components/404.vue";
 
 Vue.use(VueRouter);
 
@@ -12,15 +11,20 @@ const routes = [
     component: Home
   },
   {
-    path: "/about",
-    name: "About",
-    // component: () =>
-    //   import("../views/About.vue")
+    path: "/login",
+    name: "Login",
+    component: () =>
+      import("../views/Login.vue")
+  },
+  {
+    path: "/register",
+    name: "Register",
+    component: () =>
+      import("../views/Register.vue")
   },
   {
     path: "*",
-    name: "404",
-    component: NotFound
+    redirect: "/"
   }
 ];
 
@@ -29,5 +33,16 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
 });
+
+router.beforeEach((to, from, next) => {
+  const publicPages = ['/login', '/register'];
+  const authRequired = !publicPages.includes(to.path);
+  const loggedIn = localStorage.getItem('user');
+
+  if (authRequired && !loggedIn) {
+    return next('/login');
+  }
+  next();
+})
 
 export default router;

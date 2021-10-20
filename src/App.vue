@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <h2>MayaTracker</h2>
+    
     <main>
       <router-view />
     </main>
@@ -10,7 +10,7 @@
 <script>
 
 export default {
-  name: 'App'
+  name: 'App',
 }
 </script>
 

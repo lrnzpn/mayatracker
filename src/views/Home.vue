@@ -1,5 +1,14 @@
 <template>
   <div>
+    
+    <b-navbar variant="faded" type="light">
+      <b-navbar-brand tag="h1" class="mb-0">Welcome, {{ username }}!</b-navbar-brand>
+      <b-navbar-nav class="ms-auto">
+        <b-btn @click="logout" variant="outline-primary">Logout</b-btn>
+      </b-navbar-nav>
+    </b-navbar>
+
+    <Header />
     <b-modal 
       id="modal-add" 
       title="Add new transaction"
@@ -7,7 +16,6 @@
       >
       <AddTransaction />
     </b-modal>
-
     <Balance />
     <IncomeExpenses />
     <b-button 
@@ -20,6 +28,8 @@
 </template>
 
 <script>
+import Header from '../components/Header.vue'
+
 import Balance from '../components/Balance.vue'
 import IncomeExpenses from '../components/IncomeExpenses.vue'
 import AddTransaction from '../components/AddTransaction.vue'
@@ -32,15 +42,25 @@ export default {
     }
   },
   components: {
+    Header,
     Balance,
     IncomeExpenses,
     AddTransaction,
     TransactionList
   },
-  computed: {
-    testing() {
-      return this.$store.state.test
+  methods: {
+    logout() {
+      this.$store.dispatch('logoutUser')
     }
+  },
+  computed: {
+    username() {
+      return JSON.parse(localStorage.getItem('user')).username
+    }
+  },
+  mounted() {
+    // console.log(this.$store.state.user)
+    // console.log(localStorage.getItem('user'))
   }
 }
 </script>

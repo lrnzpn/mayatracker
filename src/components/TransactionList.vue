@@ -6,19 +6,19 @@
           <b-card 
             no-body 
             class="mb-1"
-            v-for="t in transactions" 
-              :key="t.id"
+            v-for="(t, idx) in transactions" 
+              :key="idx"
           >
             <b-card-header 
               header-tag="header" 
               class="list-item m-0" 
               :class="t.amount < 0 ? 'minus' : 'plus'"
               role="tab" 
-              v-b-toggle="'accordion-' + t.id">
+              v-b-toggle="'accordion-'+idx">
               {{t.description}} 
                 <span>{{t.amount>=0 ? '+' : '-'}}Php {{numberWithCommas(Math.abs(t.amount))}}</span>
             </b-card-header>
-            <b-collapse :id="'accordion-' + t.id" accordion="my-accordion" role="tabpanel">
+            <b-collapse :id="'accordion-' + idx" accordion="my-accordion" role="tabpanel">
               <b-card-body>
                 <b-card-text class="mb-2">Category: {{t.category}}</b-card-text>       
                 <b-card-text class="mb-2">Transaction Date: {{t.transaction_date}}</b-card-text>
@@ -70,6 +70,7 @@ export default {
     },
     mounted() {
       this.$store.dispatch('getTransactions');
+      // console.log(this.transactions)
     }
 }
 </script>
