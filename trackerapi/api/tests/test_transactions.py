@@ -72,7 +72,15 @@ class TestTransactions(APITestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_read_transactions_list_success(self):
-        response = self.client.get(self.transaction_response.data['url'])
+        response = self.client.get('/api/v1/transactions/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_read_transactions_list_filter_category_success(self):
+        response = self.client.get('/api/v1/transactions/', {'category': 'Load'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_read_transactions_list_filter_txn_date_success(self):
+        response = self.client.get('/api/v1/transactions/', {'transaction_date': '2020-10-20'})
         self.assertEqual(response.status_code, 200)
 
     def test_read_transaction_error_data_not_found(self):
