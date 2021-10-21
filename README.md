@@ -31,7 +31,7 @@ pip install -r requirements.txt
 
 ### Create .env and add secret key
 ```
-cd trackerapi
+cd trackerapi/trackerapi
 touch .env
 
 SECRET_KEY=django-insecure-s6%0&+0%pe$02$z@c05^qb+p9kxf^xr#w%duv(m7#c$u5&=dof
