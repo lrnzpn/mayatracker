@@ -22,14 +22,20 @@ class TestUsers(APITestCase):
     def test_register_error_user_already_exists(self):
         response = self.client.post('/api/v1/register/', self.user, format="json")
         self.assertEqual(response.status_code, 400)
-
+    
     # LOGIN
     def test_login_success(self):
         response = self.client.post('/api/v1/login/', {'username': self.user['username'], 'password': self.user['password']}, format="json")
         self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
         self.assertEqual(response.status_code, 200)
 
-    def test_login_error_wrong_credentials(self):
+    def test_login_error_wrong_username(self):
+        self.user['username'] = 'sampleeee'
+        response = self.client.post('/api/v1/login/', self.user, format="json")
+        self.assertEqual(response.status_code, 401)
+
+    def test_login_error_wrong_password(self):
         self.user['password'] = 'password'
         response = self.client.post('/api/v1/login/', self.user, format="json")
         self.assertEqual(response.status_code, 401)

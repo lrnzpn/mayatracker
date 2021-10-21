@@ -135,3 +135,10 @@ class TestTransactions(APITestCase):
         self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.invalid_access_token)
         response = self.client.delete(self.transaction_response.data['url'])
         self.assertEqual(response.status_code, 401)
+
+    # TEST TRANSACTION MODEL
+    def test_transaction_model(self):
+        user = User.objects.create_user(username=self.new_user['username'], password=self.new_user['password'])
+        transaction= Transaction.objects.create(description='GigaSurf', category='Load', amount=99, transaction_date='2020-10-20', user=user)
+        self.assertTrue(isinstance(transaction, Transaction))
+        self.assertEqual(str(transaction), 'GigaSurf')
