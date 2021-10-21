@@ -31,26 +31,21 @@ class TestTransactions(APITestCase):
             'transaction_date':'2020-10-21'            
         }
         # Create a user
-        User.objects.create_user(username=self.user['username'], email=self.user['email'], password=self.user['password'])
-        # Login
-        login_response = self.client.post('/api/v1/login/', {'username':self.user['username'], 'password':self.user['password']},format='json')
-        # Get user access token
-        access_token = login_response.data['access']
-        # Set authorization header
-        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + access_token)
+        self.create_user(self.user['username'], self.user['email'], self.user['password'])
         # Create a transaction
         self.transaction_response = self.client.post('/api/v1/transactions/', self.transaction, format='json')
         
          # Test data for 404 errors
         self.new_url = self.transaction_response.data['url'][:-2]
         self.new_url = self.new_url + '5/'
-        
-        User.objects.create_user(username=self.new_user['username'], email=self.new_user['email'], password=self.new_user['password'])
-        self.new_login_response = self.client.post('/api/v1/login/', {'username':self.new_user['username'], 'password':self.new_user['password']},format='json')
-        self.new_access_token = self.new_login_response.data['access']
-
         self.invalid_access_token = '12345'
 
+    def create_user(self, username, email, password):
+        User.objects.create_user(username=username, email=email, password=password)
+        new_login_response = self.client.post('/api/v1/login/', {'username':username, 'password':password},format='json')
+        new_access_token = new_login_response.data['access']
+        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + new_access_token)
+        
     # CREATE TRANSACTION
     def test_create_transaction_success(self):
         self.assertEqual(self.transaction_response.status_code, 201)
@@ -85,7 +80,7 @@ class TestTransactions(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_read_transaction_error_user_not_owner(self):
-        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        self.create_user(self.new_user['username'], self.new_user['email'], self.new_user['password'])
         response = self.client.get(self.transaction_response.data['url'])
         self.assertEqual(response.status_code, 404)
 
@@ -113,7 +108,7 @@ class TestTransactions(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_update_transaction_error_user_not_owner(self):
-        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        self.create_user(self.new_user['username'], self.new_user['email'], self.new_user['password'])
         response = self.client.put(self.transaction_response.data['url'], self.new_transaction, format='json')
         self.assertEqual(response.status_code, 404)
 
@@ -132,7 +127,7 @@ class TestTransactions(APITestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_delete_transaction_error_user_not_owner(self):
-        self.client.credentials(HTTP_AUTHORIZATION='JWT ' + self.new_access_token)
+        self.create_user(self.new_user['username'], self.new_user['email'], self.new_user['password'])
         response = self.client.delete(self.transaction_response.data['url'])
         self.assertEqual(response.status_code, 404)
 
